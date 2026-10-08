@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Model Lists</title>
+<style>
+  :root {
+    --bg: #fbfaf7; --panel: #ffffff; --ink: #1c1b19; --muted: #6b6860;
+    --line: #e4e1d9; --accent: #b4532a; --chip: #f1eee6; --warn: #a15c00;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161513; --panel: #1e1d1a; --ink: #ece9e1; --muted: #9a968c;
+      --line: #33312c; --accent: #e8926a; --chip: #2a2824; --warn: #e0a84a;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  code, .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 12.5px; }
+  a { color: var(--accent); }
+  header, main { max-width: 1280px; margin: 0 auto; padding: 0 16px; }
+  header { padding-top: 28px; }
+  h1 { margin: 0 0 4px; font-size: 24px; letter-spacing: -0.01em; }
+  .sub { color: var(--muted); margin: 0 0 16px; }
+  .usage {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+    padding: 10px 12px; margin-bottom: 16px; overflow-x: auto; white-space: nowrap;
+  }
+  .controls {
+    position: sticky; top: 0; z-index: 2; background: var(--bg);
+    display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center;
+    padding: 10px 0; border-bottom: 1px solid var(--line);
+  }
+  input[type=search], select {
+    font: inherit; color: var(--ink); background: var(--panel);
+    border: 1px solid var(--line); border-radius: 6px; padding: 6px 9px;
+  }
+  input[type=search] { flex: 1 1 220px; min-width: 0; }
+  label.check { display: inline-flex; gap: 5px; align-items: center; color: var(--muted); cursor: pointer; }
+  #count { margin-left: auto; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; white-space: nowrap; cursor: pointer; user-select: none; }
+  th[aria-sort=ascending]::after { content: " ↑"; }
+  th[aria-sort=descending]::after { content: " ↓"; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td.date { white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .name { font-weight: 600; }
+  button.id {
+    all: unset; cursor: pointer; color: var(--muted); word-break: break-all;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 12.5px;
+  }
+  button.id:hover, button.id:focus-visible { color: var(--accent); text-decoration: underline; }
+  .chip {
+    display: inline-block; background: var(--chip); border-radius: 4px;
+    padding: 1px 6px; margin: 0 4px 3px 0; font-size: 11.5px; white-space: nowrap;
+  }
+  .chip.status { color: var(--warn); }
+  tr.deprecated .name { text-decoration: line-through; color: var(--muted); }
+  .empty { padding: 32px 0; color: var(--muted); text-align: center; }
+  footer { max-width: 1280px; margin: 0 auto; padding: 20px 16px 40px; color: var(--muted); font-size: 12.5px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Model Lists</h1>
+  <p class="sub" id="meta">Loading…</p>
+  <div class="usage mono" id="usage"></div>
+</header>
+<main>
+  <div class="controls">
+    <input type="search" id="q" placeholder="Search name, id or family…" aria-label="Search models">
+    <select id="provider" aria-label="Provider"><option value="">All providers</option></select>
+    <label class="check"><input type="checkbox" id="f-tools"> tools</label>
+    <label class="check"><input type="checkbox" id="f-reasoning"> reasoning</label>
+    <label class="check"><input type="checkbox" id="f-vision"> vision</label>
+    <label class="check"><input type="checkbox" id="f-deprecated"> show deprecated</label>
+    <span id="count"></span>
+  </div>
+  <div class="scroll">
+    <table>
+      <thead>
+        <tr>
+          <th data-key="provider">Provider</th>
+          <th data-key="name">Model</th>
+          <th data-key="context_window" class="num">Context</th>
+          <th data-key="max_output_tokens" class="num">Max out</th>
+          <th data-key="cost_in" class="num">In $/M</th>
+          <th data-key="cost_out" class="num">Out $/M</th>
+          <th data-key="release_date">Released</th>
+          <th data-key="knowledge_cutoff">Knowledge</th>
+          <th>Capabilities</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+  <div class="empty" id="empty" hidden>No models match.</div>
+</main>
+<footer>
+  Data from <a href="https://models.dev">models.dev</a>. Prices are USD per 1M tokens. Click a model id to copy it.
+</footer>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const el = (tag, props = {}, ...children) => {
+  const node = Object.assign(document.createElement(tag), props);
+  node.append(...children);
+  return node;
+};
+
+const state = { models: [], providers: {}, sortKey: "release_date", sortDir: -1 };
+
+const tokens = (n) => {
+  if (n == null) return "—";
+  if (n >= 1e6) return +(n / 1e6).toFixed(2) + "M";
+  if (n >= 1e3) return +(n / 1e3).toFixed(1) + "k";
+  return String(n);
+};
+const price = (n) => (n == null ? "—" : n === 0 ? "free" : "$" + +n.toFixed(4));
+
+function sortValue(model, key) {
+  if (key === "cost_in") return model.cost?.input;
+  if (key === "cost_out") return model.cost?.output;
+  if (key === "provider") return state.providers[model.provider]?.name ?? model.provider;
+  return model[key];
+}
+
+function visibleModels() {
+  const q = $("q").value.trim().toLowerCase();
+  const provider = $("provider").value;
+  const tools = $("f-tools").checked;
+  const reasoning = $("f-reasoning").checked;
+  const vision = $("f-vision").checked;
+  const deprecated = $("f-deprecated").checked;
+
+  const list = state.models.filter((m) => {
+    if (provider && m.provider !== provider) return false;
+    if (!deprecated && m.status === "deprecated") return false;
+    if (tools && !m.capabilities.tools) return false;
+    if (reasoning && !m.capabilities.reasoning) return false;
+    if (vision && !m.modalities.input.includes("image")) return false;
+    if (q && !`${m.name} ${m.id} ${m.family ?? ""}`.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  const { sortKey, sortDir } = state;
+  return list.sort((a, b) => {
+    const x = sortValue(a, sortKey), y = sortValue(b, sortKey);
+    // Missing values always sink to the bottom, whatever the direction.
+    if (x == null || y == null) return (x == null) - (y == null);
+    const cmp = typeof x === "number" ? x - y : String(x).localeCompare(String(y));
+    return cmp * sortDir;
+  });
+}
+
+function row(m) {
+  const id = el("button", { className: "id", title: "Copy model id", textContent: m.id });
+  id.addEventListener("click", async () => {
+    await navigator.clipboard.writeText(m.id);
+    id.textContent = "copied";
+    setTimeout(() => (id.textContent = m.id), 900);
+  });
+
+  const chips = [];
+  if (m.status !== "active") chips.push(el("span", { className: "chip status", textContent: m.status }));
+  if (m.capabilities.tools) chips.push(el("span", { className: "chip", textContent: "tools" }));
+  if (m.capabilities.reasoning) chips.push(el("span", { className: "chip", textContent: "reasoning" }));
+  if (m.capabilities.structured_output) chips.push(el("span", { className: "chip", textContent: "structured" }));
+  for (const kind of m.modalities.input) {
+    if (kind !== "text") chips.push(el("span", { className: "chip", textContent: kind + " in" }));
+  }
+  for (const kind of m.modalities.output) {
+    if (kind !== "text") chips.push(el("span", { className: "chip", textContent: kind + " out" }));
+  }
+  if (m.open_weights) chips.push(el("span", { className: "chip", textContent: "open weights" }));
+
+  return el("tr", { className: m.status, title: m.description ?? "" },
+    el("td", { textContent: state.providers[m.provider]?.name ?? m.provider }),
+    el("td", {}, el("div", { className: "name", textContent: m.name }), id),
+    el("td", { className: "num", textContent: tokens(m.context_window) }),
+    el("td", { className: "num", textContent: tokens(m.max_output_tokens) }),
+    el("td", { className: "num", textContent: price(m.cost?.input) }),
+    el("td", { className: "num", textContent: price(m.cost?.output) }),
+    el("td", { className: "date", textContent: m.release_date ?? "—" }),
+    el("td", { className: "date", textContent: m.knowledge_cutoff ?? "—" }),
+    el("td", {}, ...chips));
+}
+
+function render() {
+  const list = visibleModels();
+  $("rows").replaceChildren(...list.map(row));
+  $("empty").hidden = list.length > 0;
+  $("count").textContent = `${list.length} of ${state.models.length}`;
+  for (const th of document.querySelectorAll("th[data-key]")) {
+    if (th.dataset.key === state.sortKey) {
+      th.setAttribute("aria-sort", state.sortDir > 0 ? "ascending" : "descending");
+    } else {
+      th.removeAttribute("aria-sort");
+    }
+  }
+}
+
+async function main() {
+  const url = new URL("models.json", location.href);
+  $("usage").textContent = `curl -s ${url} | jq '.models[] | select(.provider == "anthropic") | .id'`;
+
+  const data = await (await fetch(url)).json();
+  state.models = data.models;
+  for (const p of data.providers) {
+    state.providers[p.id] = p;
+    $("provider").append(el("option", { value: p.id, textContent: `${p.name} (${p.model_count})` }));
+  }
+  $("meta").replaceChildren(
+    `${data.models.length} models from ${data.providers.length} providers · updated ${data.updated_at.slice(0, 10)} · `,
+    el("a", { href: "models.json", textContent: "models.json" }));
+
+  for (const id of ["q", "provider", "f-tools", "f-reasoning", "f-vision", "f-deprecated"]) {
+    $(id).addEventListener("input", render);
+  }
+  for (const th of document.querySelectorAll("th[data-key]")) {
+    th.addEventListener("click", () => {
+      const key = th.dataset.key;
+      if (state.sortKey === key) state.sortDir *= -1;
+      else Object.assign(state, { sortKey: key, sortDir: key === "provider" || key === "name" ? 1 : -1 });
+      render();
+    });
+  }
+  render();
+}
+
+main().catch((error) => {
+  $("meta").textContent = `Could not load models.json: ${error.message}`;
+});
+</script>
+</body>
+</html>
