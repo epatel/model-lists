@@ -33,6 +33,7 @@ PROVIDERS = [
     "cohere",
     "perplexity",
     "groq",
+    "ollama-cloud",
     "openrouter",
 ]
 
