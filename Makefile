@@ -9,14 +9,15 @@ menu:
 	echo "2 make serve                - preview the page at http://localhost:$(PORT)"
 	echo "3 make stats                - show model counts per provider"
 	echo "4 make pages                - enable GitHub Pages (main branch, /docs) for this repo"
-	echo "5 make update_phony         - update .PHONY in Makefile"
+	echo "5 make update_remote        - run the update on GitHub Actions (commits if changed)"
+	echo "6 make update_phony         - update .PHONY in Makefile"
 
 select:
 	read -p ">>> " P ; make menu | grep "^$$P " | cut -d ' ' -f2-3 | bash
 
 .SILENT:
 
-.PHONY: info menu select update serve stats pages update_phony
+.PHONY: info menu select update serve stats pages update_remote update_phony 
 
 update:
 	python3 scripts/update_models.py
@@ -29,6 +30,9 @@ stats:
 
 pages:
 	gh api -X POST "repos/{owner}/{repo}/pages" -f "source[branch]=main" -f "source[path]=/docs" --jq .html_url
+
+update_remote:
+	gh workflow run update-models.yml
 
 update_phony:
 	echo "##### Updating .PHONY targets #####"

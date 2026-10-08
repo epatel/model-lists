@@ -1,8 +1,6 @@
 name: Update models
 
 on:
-  schedule:
-    - cron: "17 5 * * *"
   workflow_dispatch:
 
 permissions:

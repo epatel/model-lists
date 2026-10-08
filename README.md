@@ -17,7 +17,7 @@ make stats      # model counts per provider
 
 Data comes from [models.dev](https://models.dev), so no API keys are needed. The providers to include are the `PROVIDERS` list at the top of `scripts/update_models.py`; any models.dev provider id works.
 
-A scheduled GitHub Action runs the update daily and commits `models.json` only when the data changed.
+Updates are manual: run `make update` and push, or `make update_remote` to run the "Update models" GitHub Action, which commits `models.json` only when the data changed.
 
 ## Publishing
 
