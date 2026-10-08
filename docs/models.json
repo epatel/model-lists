@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-08T08:31:13Z",
+  "updated_at": "2026-10-08T08:35:59Z",
   "schema_version": 1,
   "source": "https://models.dev/api.json",
   "providers": [
@@ -62,6 +62,26 @@
       "api": "https://api.deepseek.com",
       "env": [
         "DEEPSEEK_API_KEY"
+      ],
+      "model_count": 4
+    },
+    {
+      "id": "moonshotai",
+      "name": "Moonshot AI",
+      "docs": "https://platform.moonshot.ai/docs/api/chat",
+      "api": "https://api.moonshot.ai/v1",
+      "env": [
+        "MOONSHOT_API_KEY"
+      ],
+      "model_count": 4
+    },
+    {
+      "id": "kimi-code-plan-global",
+      "name": "Kimi For Coding (kimi.ai)",
+      "docs": "https://www.kimi.ai/code/docs/en/kimi-code/models.html",
+      "api": "https://api.kimi.ai/coding/v1",
+      "env": [
+        "KIMI_API_KEY"
       ],
       "model_count": 4
     },
@@ -7453,6 +7473,348 @@
         "output": 1.98,
         "reasoning": 1.98,
         "cache_read": 0.022
+      }
+    },
+    {
+      "provider": "moonshotai",
+      "id": "kimi-k3",
+      "name": "Kimi K3",
+      "family": "kimi-k3",
+      "description": "Multimodal Kimi model with 1M context and toggleable max-effort thinking for long-horizon agent work",
+      "status": "active",
+      "release_date": "2026-07-16",
+      "last_updated": "2026-07-16",
+      "context_window": 1048576,
+      "max_output_tokens": 1048576,
+      "modalities": {
+        "input": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": {
+        "tools": true,
+        "reasoning": true,
+        "structured_output": true,
+        "attachments": true,
+        "temperature": false
+      },
+      "reasoning_options": [
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "high",
+            "max"
+          ]
+        }
+      ],
+      "open_weights": true,
+      "cost": {
+        "input": 3,
+        "output": 15,
+        "cache_read": 0.3,
+        "cache_write": 3
+      }
+    },
+    {
+      "provider": "moonshotai",
+      "id": "kimi-k2.7-code",
+      "name": "Kimi K2.7 Code",
+      "family": "kimi-k2",
+      "description": "Coding-focused Kimi model, stronger on long-horizon repo work with less overthinking",
+      "status": "active",
+      "release_date": "2026-06-12",
+      "last_updated": "2026-06-12",
+      "knowledge_cutoff": "2025-01",
+      "context_window": 262144,
+      "max_output_tokens": 262144,
+      "modalities": {
+        "input": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": {
+        "tools": true,
+        "reasoning": true,
+        "structured_output": true,
+        "attachments": true,
+        "temperature": false
+      },
+      "reasoning_options": [],
+      "open_weights": true,
+      "cost": {
+        "input": 0.95,
+        "output": 4,
+        "cache_read": 0.19
+      }
+    },
+    {
+      "provider": "moonshotai",
+      "id": "kimi-k2.7-code-highspeed",
+      "name": "Kimi K2.7 Code HighSpeed",
+      "family": "kimi-k2",
+      "description": "Coding-focused Kimi model, stronger on long-horizon repo work with less overthinking",
+      "status": "active",
+      "release_date": "2026-06-12",
+      "last_updated": "2026-06-12",
+      "knowledge_cutoff": "2025-01",
+      "context_window": 262144,
+      "max_output_tokens": 262144,
+      "modalities": {
+        "input": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": {
+        "tools": true,
+        "reasoning": true,
+        "structured_output": true,
+        "attachments": true,
+        "temperature": false
+      },
+      "reasoning_options": [],
+      "open_weights": true,
+      "cost": {
+        "input": 1.9,
+        "output": 8,
+        "cache_read": 0.38
+      }
+    },
+    {
+      "provider": "moonshotai",
+      "id": "kimi-k2.6",
+      "name": "Kimi K2.6",
+      "family": "kimi-k2",
+      "description": "Multimodal Kimi workhorse for agent loops, coding tasks, and visual context",
+      "status": "active",
+      "release_date": "2026-04-21",
+      "last_updated": "2026-04-21",
+      "knowledge_cutoff": "2025-01",
+      "context_window": 262144,
+      "max_output_tokens": 262144,
+      "modalities": {
+        "input": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": {
+        "tools": true,
+        "reasoning": true,
+        "structured_output": true,
+        "attachments": true,
+        "temperature": true
+      },
+      "reasoning_options": [
+        {
+          "type": "toggle"
+        }
+      ],
+      "open_weights": true,
+      "cost": {
+        "input": 0.95,
+        "output": 4,
+        "cache_read": 0.16
+      }
+    },
+    {
+      "provider": "kimi-code-plan-global",
+      "id": "kimi-for-coding",
+      "name": "kimi-for-coding",
+      "family": "kimi-k2",
+      "description": "Kimi coding model with more efficient thinking and up to 1M context, available through Kimi Code",
+      "status": "active",
+      "release_date": "2026-09-11",
+      "last_updated": "2026-09-11",
+      "context_window": 1048576,
+      "max_output_tokens": 32768,
+      "modalities": {
+        "input": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": {
+        "tools": true,
+        "reasoning": true,
+        "structured_output": false,
+        "attachments": true,
+        "temperature": false
+      },
+      "reasoning_options": [
+        {
+          "type": "toggle"
+        },
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "high",
+            "max"
+          ]
+        }
+      ],
+      "open_weights": false,
+      "cost": {
+        "input": 0,
+        "output": 0,
+        "cache_read": 0,
+        "cache_write": 0
+      }
+    },
+    {
+      "provider": "kimi-code-plan-global",
+      "id": "k3",
+      "name": "Kimi K3",
+      "family": "kimi-k3",
+      "description": "Multimodal Kimi model with 1M context and toggleable max-effort thinking for long-horizon agent work",
+      "status": "active",
+      "release_date": "2026-07-16",
+      "last_updated": "2026-07-16",
+      "context_window": 1048576,
+      "max_output_tokens": 131072,
+      "modalities": {
+        "input": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": {
+        "tools": true,
+        "reasoning": true,
+        "structured_output": true,
+        "attachments": true,
+        "temperature": false
+      },
+      "reasoning_options": [
+        {
+          "type": "toggle"
+        },
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "high",
+            "max"
+          ]
+        }
+      ],
+      "open_weights": true,
+      "cost": {
+        "input": 0,
+        "output": 0,
+        "cache_read": 0,
+        "cache_write": 0
+      }
+    },
+    {
+      "provider": "kimi-code-plan-global",
+      "id": "k3-256k",
+      "name": "Kimi K3-256K",
+      "family": "kimi-k3",
+      "description": "256K-context version of Kimi K3, reducing token consumption for shorter coding sessions",
+      "status": "active",
+      "release_date": "2026-07-16",
+      "last_updated": "2026-07-16",
+      "context_window": 262144,
+      "max_output_tokens": 131072,
+      "modalities": {
+        "input": [
+          "text",
+          "image"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": {
+        "tools": true,
+        "reasoning": true,
+        "structured_output": true,
+        "attachments": true,
+        "temperature": false
+      },
+      "reasoning_options": [
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "high",
+            "max"
+          ]
+        }
+      ],
+      "open_weights": true,
+      "cost": {
+        "input": 0,
+        "output": 0,
+        "cache_read": 0,
+        "cache_write": 0
+      }
+    },
+    {
+      "provider": "kimi-code-plan-global",
+      "id": "kimi-for-coding-highspeed",
+      "name": "Kimi For Coding HighSpeed",
+      "family": "kimi-k2",
+      "description": "Lower-latency Kimi Code variant for interactive edits and coding-agent loops",
+      "status": "active",
+      "release_date": "2026-06-12",
+      "last_updated": "2026-06-12",
+      "knowledge_cutoff": "2025-01",
+      "context_window": 262144,
+      "max_output_tokens": 32768,
+      "modalities": {
+        "input": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output": [
+          "text"
+        ]
+      },
+      "capabilities": {
+        "tools": true,
+        "reasoning": true,
+        "structured_output": true,
+        "attachments": true,
+        "temperature": false
+      },
+      "reasoning_options": [],
+      "open_weights": true,
+      "cost": {
+        "input": 0,
+        "output": 0,
+        "cache_read": 0,
+        "cache_write": 0
       }
     },
     {

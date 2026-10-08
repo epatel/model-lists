@@ -29,6 +29,8 @@ PROVIDERS = [
     "xai",
     "mistral",
     "deepseek",
+    "moonshotai",
+    "kimi-code-plan-global",
     "meta",
     "cohere",
     "perplexity",
